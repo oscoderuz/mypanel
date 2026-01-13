@@ -55,7 +55,7 @@ class DockerService:
                 'page_size': page_size
             }
             
-            response = requests.get(url, params=params, timeout=10)
+            response = requests.get(url, params=params, timeout=30)
             response.raise_for_status()
             
             data = response.json()
@@ -81,9 +81,21 @@ class DockerService:
                 'previous': data.get('previous')
             }
             
+        except requests.exceptions.Timeout:
+            return {
+                'error': 'Docker Hub serveriga ulanish vaqti tugadi. Iltimos, keyinroq qaytadan urinib ko\'ring.',
+                'results': [],
+                'count': 0
+            }
+        except requests.exceptions.ConnectionError:
+            return {
+                'error': 'Docker Hub serveriga ulanib bo\'lmadi. Internet aloqangizni tekshiring.',
+                'results': [],
+                'count': 0
+            }
         except requests.RequestException as e:
             return {
-                'error': f"Ошибка поиска в Docker Hub: {str(e)}",
+                'error': f"Docker Hub bilan bog'lanishda xatolik: {str(e)}",
                 'results': [],
                 'count': 0
             }

@@ -1,79 +1,77 @@
 {% extends "base.html" %}
 
-{% block title %}Сайты — {{ panel_name }}{% endblock %}
+{% block title %}Sites — {{ panel_name }}{% endblock %}
 
 {% block content %}
 <div class="fade-in">
-    <div class="flex items-center justify-between mb-8">
-        <h1 class="text-3xl font-bold">Управление сайтами</h1>
-        <button onclick="openAddDomain()" class="btn-primary px-6 py-2 rounded-xl">Добавить домен</button>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold">Sites</h1>
+        <button onclick="openAddDomain()" class="btn-primary flex items-center gap-2 text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                </path>
+            </svg>
+            Add Domain
+        </button>
     </div>
 
     <!-- Nginx Status -->
-    <div class="glass rounded-2xl p-4 mb-6 flex items-center justify-between">
+    <div class="card p-4 mb-6 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div id="nginxStatus" class="w-3 h-3 bg-gray-500 rounded-full"></div>
-            <span>Nginx: <span id="nginxStatusText">Проверка...</span></span>
+            <div id="nginxStatus" class="w-2 h-2 bg-zinc-500 rounded-full"></div>
+            <span class="text-sm">Nginx: <span id="nginxStatusText"
+                    class="text-text-secondary">Checking...</span></span>
         </div>
         <div class="flex gap-2">
-            <button onclick="reloadNginx()"
-                class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">Reload</button>
-            <button onclick="testNginx()"
-                class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">Test Config</button>
+            <button onclick="reloadNginx()" class="btn-secondary py-2 px-4 text-sm">Reload</button>
+            <button onclick="testNginx()" class="btn-secondary py-2 px-4 text-sm">Test Config</button>
         </div>
     </div>
 
-    <div id="domains" class="space-y-4"></div>
+    <div id="domains" class="space-y-3"></div>
 
     <div id="empty" class="hidden text-center py-16">
-        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-indigo-500/20 flex items-center justify-center">
-            <svg class="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9">
-                </path>
-            </svg>
-        </div>
-        <h3 class="text-xl font-bold mb-2">Нет доменов</h3>
-        <p class="text-gray-400">Добавьте первый домен</p>
+        <svg class="w-16 h-16 mx-auto text-text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9">
+            </path>
+        </svg>
+        <h3 class="text-lg font-semibold mb-2">No domains</h3>
+        <p class="text-text-muted text-sm">Add your first domain to get started</p>
     </div>
 </div>
 
 <!-- Add Domain Modal -->
-<div id="addModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
-    <div class="glass-strong rounded-2xl p-8 w-full max-w-lg m-4">
-        <h3 class="text-xl font-bold mb-6">Добавить домен</h3>
+<div id="addModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="card p-6 w-full max-w-lg m-4 fade-in">
+        <h3 class="text-lg font-semibold mb-6">Add Domain</h3>
         <form id="addForm" class="space-y-4">
             <div>
-                <label class="block text-sm text-gray-400 mb-2">Доменное имя</label>
-                <input type="text" id="domainName" required placeholder="example.com"
-                    class="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 outline-none">
+                <label class="block text-sm text-text-secondary mb-2">Domain Name</label>
+                <input type="text" id="domainName" required placeholder="example.com" class="input w-full">
             </div>
 
             <div>
-                <label class="block text-sm text-gray-400 mb-2">Тип</label>
-                <select id="proxyType"
-                    class="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
+                <label class="block text-sm text-text-secondary mb-2">Type</label>
+                <select id="proxyType" class="input w-full">
                     <option value="reverse_proxy">Reverse Proxy</option>
                     <option value="static">Static Site</option>
                 </select>
             </div>
 
             <div id="portField">
-                <label class="block text-sm text-gray-400 mb-2">Порт приложения</label>
-                <input type="number" id="targetPort" placeholder="3000"
-                    class="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
+                <label class="block text-sm text-text-secondary mb-2">Application Port</label>
+                <input type="number" id="targetPort" placeholder="3000" class="input w-full">
             </div>
 
             <div id="pathField" class="hidden">
-                <label class="block text-sm text-gray-400 mb-2">Путь к файлам</label>
-                <input type="text" id="rootPath" placeholder="/var/www/site"
-                    class="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 outline-none">
+                <label class="block text-sm text-text-secondary mb-2">Root Path</label>
+                <input type="text" id="rootPath" placeholder="/var/www/site" class="input w-full">
             </div>
 
-            <div class="flex gap-4 pt-4">
-                <button type="button" onclick="closeAddModal()"
-                    class="flex-1 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition">Отмена</button>
-                <button type="submit" class="flex-1 btn-primary py-3 rounded-xl">Добавить</button>
+            <div class="flex gap-3 pt-4">
+                <button type="button" onclick="closeAddModal()" class="btn-secondary flex-1 py-3">Cancel</button>
+                <button type="submit" class="btn-primary flex-1 py-3">Add Domain</button>
             </div>
         </form>
     </div>
@@ -100,30 +98,38 @@
         document.getElementById('empty').classList.add('hidden');
 
         const html = domains.map(d => `
-        <div class="glass rounded-2xl p-6 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl ${d.ssl_enabled ? 'bg-green-500/20' : 'bg-gray-500/20'} flex items-center justify-center">
-                    ${d.ssl_enabled ? '<svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>' : '<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>'}
+            <div class="card p-5 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg ${d.ssl_enabled ? 'bg-green-500/15' : 'bg-zinc-500/15'} flex items-center justify-center">
+                        ${d.ssl_enabled
+                ? '<svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>'
+                : '<svg class="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>'}
+                    </div>
+                    <div>
+                        <h3 class="font-medium">${d.domain_name}</h3>
+                        <p class="text-sm text-text-muted">${d.proxy_type === 'reverse_proxy' ? `→ localhost:${d.target_port}` : d.root_path}</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold">${d.domain_name}</h3>
-                    <p class="text-sm text-gray-400">${d.proxy_type === 'reverse_proxy' ? `→ localhost:${d.target_port}` : d.root_path}</p>
+                <div class="flex items-center gap-2">
+                    ${!d.ssl_enabled ? `<button onclick="issueSSL(${d.id})" class="btn-secondary py-2 px-3 text-sm text-green-400 border-green-500/30">SSL</button>` : '<span class="badge badge-success">SSL Active</span>'}
+                    <button onclick="deleteDomain(${d.id})" class="p-2 hover:bg-surface-hover rounded-lg text-text-muted hover:text-red-400 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                ${!d.ssl_enabled ? `<button onclick="issueSSL(${d.id})" class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg text-sm transition">SSL</button>` : ''}
-                <button onclick="deleteDomain(${d.id})" class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm transition">Удалить</button>
-            </div>
-        </div>
-    `).join('');
+        `).join('');
 
         document.getElementById('domains').innerHTML = html;
     }
 
     async function checkNginxStatus() {
-        const data = await API.get('/websites/api/nginx/status');
-        document.getElementById('nginxStatus').className = `w-3 h-3 rounded-full ${data.running ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`;
-        document.getElementById('nginxStatusText').textContent = data.running ? 'Запущен' : 'Остановлен';
+        try {
+            const data = await API.get('/websites/api/nginx/status');
+            document.getElementById('nginxStatus').className = `w-2 h-2 rounded-full ${data.running ? 'bg-green-500' : 'bg-red-500'}`;
+            document.getElementById('nginxStatusText').textContent = data.running ? 'Running' : 'Stopped';
+        } catch (e) {
+            document.getElementById('nginxStatusText').textContent = 'Error';
+        }
     }
 
     function openAddDomain() {
@@ -147,7 +153,7 @@
 
         const res = await API.post('/websites/api/domains', data);
         if (res.success) {
-            showToast('Домен добавлен', 'success');
+            showToast('Domain added', 'success');
             closeAddModal();
             loadDomains();
         } else {
@@ -156,15 +162,15 @@
     });
 
     async function issueSSL(id) {
-        if (!confirm('Выпустить SSL сертификат?')) return;
-        showToast('Выпуск сертификата...', 'info');
+        if (!confirm('Issue SSL certificate?')) return;
+        showToast('Issuing certificate...', 'info');
         const res = await API.post(`/websites/api/domains/${id}/ssl`);
         showToast(res.message || res.error, res.success ? 'success' : 'error');
         loadDomains();
     }
 
     async function deleteDomain(id) {
-        if (!confirm('Удалить домен?')) return;
+        if (!confirm('Delete domain?')) return;
         const res = await API.delete(`/websites/api/domains/${id}`);
         showToast(res.message || res.error, res.success ? 'success' : 'error');
         loadDomains();
@@ -180,6 +186,10 @@
         const res = await API.get('/websites/api/nginx/test');
         showToast(res.message || res.error, res.success ? 'success' : 'error');
     }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAddModal();
+    });
 
     loadDomains();
     checkNginxStatus();

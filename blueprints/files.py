@@ -142,25 +142,34 @@ def api_save():
 def api_create():
     data = request.get_json() or {}
     parent_path = data.get('path', '/')
-    name = secure_filename(data.get('name', '').strip())
+    raw_name = data.get('name', '').strip()
+    name = secure_filename(raw_name)
+    # If secure_filename returns empty, use sanitized original name
+    if not name and raw_name:
+        # Remove dangerous characters but keep the name
+        name = ''.join(c for c in raw_name if c.isalnum() or c in '._-')
     item_type = data.get('type', 'file')
     if not name:
-        return jsonify({'error': 'Недопустимое имя'}), 400
+        return jsonify({'error': 'Fayl nomi noto\'g\'ri yoki bo\'sh'}), 400
     parent_full = safe_path(parent_path)
     if not parent_full:
-        return jsonify({'error': 'Недопустимый путь'}), 400
+        return jsonify({'error': 'Noto\'g\'ri yo\'l'}), 400
+    if not os.path.exists(parent_full):
+        return jsonify({'error': 'Katalog topilmadi'}), 404
     full_path = os.path.join(parent_full, name)
     if os.path.exists(full_path):
-        return jsonify({'error': 'Уже существует'}), 400
+        return jsonify({'error': 'Bu nom bilan fayl allaqachon mavjud'}), 400
     try:
         if item_type == 'directory':
             os.makedirs(full_path)
         else:
             with open(full_path, 'w') as f:
                 pass
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'message': f'{name} yaratildi'})
+    except PermissionError:
+        return jsonify({'error': 'Ruxsat berilmadi. Administrator huquqlari kerak bo\'lishi mumkin.'}), 403
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Xatolik: {str(e)}'}), 500
 
 
 @files_bp.route('/api/rename', methods=['POST'])

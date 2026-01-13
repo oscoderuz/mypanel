@@ -80,18 +80,6 @@
         </div>
     </div>
 
-    <!-- Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="glass rounded-2xl p-6">
-            <h3 class="text-lg font-semibold mb-4">CPU History</h3>
-            <canvas id="cpuChart" height="200"></canvas>
-        </div>
-        <div class="glass rounded-2xl p-6">
-            <h3 class="text-lg font-semibold mb-4">Memory History</h3>
-            <canvas id="memChart" height="200"></canvas>
-        </div>
-    </div>
-
     <!-- System Info -->
     <div class="glass rounded-2xl p-6">
         <h3 class="text-lg font-semibold mb-4">Система</h3>
@@ -119,33 +107,6 @@
 
 {% block scripts %}
 <script>
-    const cpuData = [], memData = [], labels = [];
-    const maxPoints = 30;
-
-    const chartConfig = {
-        type: 'line',
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { display: false },
-                y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } }
-            },
-            elements: { point: { radius: 0 }, line: { tension: 0.4 } }
-        }
-    };
-
-    const cpuChart = new Chart(document.getElementById('cpuChart'), {
-        ...chartConfig,
-        data: { labels, datasets: [{ data: cpuData, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true }] }
-    });
-
-    const memChart = new Chart(document.getElementById('memChart'), {
-        ...chartConfig,
-        data: { labels, datasets: [{ data: memData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true }] }
-    });
-
     async function updateStats() {
         try {
             const data = await API.get('/api/stats');
@@ -180,20 +141,6 @@
                 document.getElementById('sys-uptime').textContent = data.system.uptime_human;
                 document.getElementById('sys-python').textContent = data.system.python_version;
             }
-
-            // Update charts
-            labels.push('');
-            cpuData.push(data.cpu.percent);
-            memData.push(data.memory.percent);
-
-            if (labels.length > maxPoints) {
-                labels.shift();
-                cpuData.shift();
-                memData.shift();
-            }
-
-            cpuChart.update('none');
-            memChart.update('none');
         } catch (e) {
             console.error('Stats error:', e);
         }
