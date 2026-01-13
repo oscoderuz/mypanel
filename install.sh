@@ -96,7 +96,14 @@ mkdir -p "$PANEL_DIR/logs"
 
 # Copy panel files (assuming running from source directory)
 if [ -f "app.py" ]; then
-    cp -r . "$PANEL_DIR/"
+    CURRENT_DIR=$(pwd -P)
+    TARGET_DIR=$(realpath "$PANEL_DIR" 2>/dev/null || echo "$PANEL_DIR")
+    
+    if [ "$CURRENT_DIR" = "$TARGET_DIR" ]; then
+        echo "Файлы уже находятся в целевой директории"
+    else
+        cp -r . "$PANEL_DIR/"
+    fi
 else
     echo -e "${YELLOW}Файлы панели не найдены в текущей директории${NC}"
     echo "Убедитесь, что вы запускаете скрипт из директории с исходным кодом"
