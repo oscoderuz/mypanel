@@ -425,7 +425,18 @@ server {{
     
     def get_nginx_status(self) -> Dict:
         """Get Nginx service status."""
+        import shutil
         try:
+            # First check if nginx binary exists
+            nginx_path = shutil.which('nginx')
+            if not nginx_path:
+                return {
+                    'installed': False,
+                    'running': False,
+                    'status': 'not_installed',
+                    'error': 'Nginx o\'rnatilmagan'
+                }
+            
             result = subprocess.run(
                 ['systemctl', 'is-active', 'nginx'],
                 capture_output=True,
@@ -435,12 +446,13 @@ server {{
             
             status = result.stdout.strip()
             return {
+                'installed': True,
                 'running': status == 'active',
                 'status': status
             }
             
         except Exception as e:
-            return {'running': False, 'status': 'unknown', 'error': str(e)}
+            return {'installed': False, 'running': False, 'status': 'unknown', 'error': str(e)}
     
     # ==================== SSL/Certbot ====================
     

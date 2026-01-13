@@ -7,5 +7,6 @@ Business logic services for the application.
 from services.docker_service import DockerService
 from services.nginx_service import NginxService
 from services.system_service import SystemService
+from services.supervisor_service import SupervisorService
 
-__all__ = ['DockerService', 'NginxService', 'SystemService']
+__all__ = ['DockerService', 'NginxService', 'SystemService', 'SupervisorService']

@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Supervisor — {{ panel_name }}{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold">Supervisor</h1>
+        <div class="flex gap-3">
+            <button onclick="reloadConfig()" class="btn-secondary flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                Reload Config
+            </button>
+            <button onclick="startAll()" class="btn-secondary flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                    </path>
+                </svg>
+                Start All
+            </button>
+            <button onclick="stopAll()"
+                class="btn-secondary flex items-center gap-2 text-sm text-red-400 border-red-400/30 hover:bg-red-400/10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                </svg>
+                Stop All
+            </button>
+        </div>
+    </div>
+
+    <!-- Status Card -->
+    <div class="card p-4 mb-6 flex items-center gap-4">
+        <div id="statusIndicator" class="w-3 h-3 rounded-full bg-zinc-500"></div>
+        <div>
+            <span class="text-sm text-text-secondary">Supervisor Status:</span>
+            <span id="statusText" class="ml-2 font-medium">Checking...</span>
+        </div>
+    </div>
+
+    <!-- Processes Table -->
+    <div class="card overflow-hidden">
+        <div class="p-4 border-b border-border">
+            <h3 class="font-medium">Processes</h3>
+        </div>
+        <div id="processList" class="divide-y divide-border">
+            <div class="p-8 text-center text-text-muted">
+                <div
+                    class="inline-block w-6 h-6 border-2 border-text-muted border-t-transparent rounded-full animate-spin">
+                </div>
+                <p class="mt-2 text-sm">Loading processes...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logs Modal -->
+<div id="logsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="card p-6 w-full max-w-4xl m-4 fade-in max-h-[80vh] flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+            <h3 id="logsTitle" class="text-lg font-semibold">Logs</h3>
+            <button onclick="closeLogsModal()" class="p-2 hover:bg-surface-hover rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        <div id="logsContent" class="flex-1 overflow-auto bg-black rounded-lg p-4 font-mono text-sm text-green-400">
+            Loading...
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function loadStatus() {
+        try {
+            const data = await API.get('/supervisor/api/status');
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+
+            if (!data.installed) {
+                indicator.className = 'w-3 h-3 rounded-full bg-red-500';
+                text.textContent = 'Not Installed';
+                text.className = 'ml-2 font-medium text-red-400';
+            } else if (data.running) {
+                indicator.className = 'w-3 h-3 rounded-full bg-green-500 animate-pulse';
+                text.textContent = 'Running';
+                text.className = 'ml-2 font-medium text-green-400';
+            } else {
+                indicator.className = 'w-3 h-3 rounded-full bg-yellow-500';
+                text.textContent = 'Stopped';
+                text.className = 'ml-2 font-medium text-yellow-400';
+            }
+        } catch (e) {
+            console.error('Status error:', e);
+        }
+    }
+
+    async function loadProcesses() {
+        try {
+            const data = await API.get('/supervisor/api/processes');
+            const container = document.getElementById('processList');
+
+            if (!data.processes || data.processes.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-text-muted">
+                        <svg class="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                        </svg>
+                        <p>No processes configured</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.processes.map(p => `
+                <div class="flex items-center justify-between p-4 hover:bg-surface-hover transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-2 h-2 rounded-full ${p.running ? 'bg-green-500' : 'bg-red-500'}"></div>
+                        <div>
+                            <h4 class="font-medium">${p.name}</h4>
+                            <p class="text-sm text-text-muted">
+                                ${p.running ? `PID: ${p.pid || '-'} | Uptime: ${p.uptime || '-'}` : p.info || 'Stopped'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${p.running ? `
+                            <button onclick="stopProcess('${p.name}')" class="p-2 hover:bg-red-500/20 rounded-lg text-red-400 transition-colors" title="Stop">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="restartProcess('${p.name}')" class="p-2 hover:bg-blue-500/20 rounded-lg text-blue-400 transition-colors" title="Restart">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                            </button>
+                        ` : `
+                            <button onclick="startProcess('${p.name}')" class="p-2 hover:bg-green-500/20 rounded-lg text-green-400 transition-colors" title="Start">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </button>
+                        `}
+                        <button onclick="showLogs('${p.name}')" class="p-2 hover:bg-surface-hover rounded-lg text-text-secondary transition-colors" title="Logs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            console.error('Processes error:', e);
+        }
+    }
+
+    async function startProcess(name) {
+        const data = await API.post(`/supervisor/api/process/${name}/start`);
+        showToast(data.message || data.error, data.success ? 'success' : 'error');
+        loadProcesses();
+    }
+
+    async function stopProcess(name) {
+        const data = await API.post(`/supervisor/api/process/${name}/stop`);
+        showToast(data.message || data.error, data.success ? 'success' : 'error');
+        loadProcesses();
+    }
+
+    async function restartProcess(name) {
+        const data = await API.post(`/supervisor/api/process/${name}/restart`);
+        showToast(data.message || data.error, data.success ? 'success' : 'error');
+        loadProcesses();
+    }
+
+    async function startAll() {
+        const data = await API.post('/supervisor/api/start-all');
+        showToast(data.message || data.error, data.success ? 'success' : 'error');
+        loadProcesses();
+    }
+
+    async function stopAll() {
+        if (!confirm('Barcha jarayonlarni to\'xtatmoqchimisiz?')) return;
+        const data = await API.post('/supervisor/api/stop-all');
+        showToast(data.message || data.error, data.success ? 'success' : 'error');
+        loadProcesses();
+    }
+
+    async function reloadConfig() {
+        const data = await API.post('/supervisor/api/reload');
+        showToast(data.message || data.error, data.success ? 'success' : 'error');
+        loadProcesses();
+    }
+
+    async function showLogs(name) {
+        document.getElementById('logsTitle').textContent = `Logs: ${name}`;
+        document.getElementById('logsModal').classList.remove('hidden');
+        document.getElementById('logsModal').classList.add('flex');
+        document.getElementById('logsContent').textContent = 'Loading...';
+
+        const data = await API.get(`/supervisor/api/process/${name}/logs?tail=200`);
+        document.getElementById('logsContent').textContent = data.logs || data.error || 'No logs available';
+    }
+
+    function closeLogsModal() {
+        document.getElementById('logsModal').classList.add('hidden');
+        document.getElementById('logsModal').classList.remove('flex');
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLogsModal();
+    });
+
+    loadStatus();
+    loadProcesses();
+    setInterval(loadProcesses, 5000);
+</script>
+{% endblock %}

@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Дашборд — {{ panel_name }}{% endblock %}
+{% block title %}Dashboard — {{ panel_name }}{% endblock %}
 
 {% block content %}
 <div class="fade-in">
-    <h1 class="text-3xl font-bold mb-8">Дашборд</h1>
+    <h1 class="text-3xl font-bold mb-8">Dashboard</h1>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="glass rounded-2xl p-6 card-hover transition-all">
+        <div class="card p-6">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-gray-400">CPU</span>
-                <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="text-text-secondary">CPU</span>
+                <div class="w-10 h-10 rounded-xl bg-indicator-info/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indicator-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
                         </path>
@@ -20,17 +20,16 @@
                 </div>
             </div>
             <div class="text-3xl font-bold" id="cpu-value">--%</div>
-            <div class="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all" id="cpu-bar"
-                    style="width: 0%"></div>
+            <div class="mt-3 h-1 bg-border rounded-full overflow-hidden">
+                <div class="h-full bg-indicator-info transition-all" id="cpu-bar" style="width: 0%"></div>
             </div>
         </div>
 
-        <div class="glass rounded-2xl p-6 card-hover transition-all">
+        <div class="card p-6">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-gray-400">RAM</span>
-                <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="text-text-secondary">RAM</span>
+                <div class="w-10 h-10 rounded-xl bg-indicator-success/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indicator-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                         </path>
@@ -38,18 +37,17 @@
                 </div>
             </div>
             <div class="text-3xl font-bold" id="ram-value">-- GB</div>
-            <div class="text-sm text-gray-500" id="ram-details">-- / -- GB</div>
-            <div class="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all" id="ram-bar"
-                    style="width: 0%"></div>
+            <div class="text-sm text-text-muted mt-1" id="ram-details">-- / -- GB</div>
+            <div class="mt-3 h-1 bg-border rounded-full overflow-hidden">
+                <div class="h-full bg-indicator-success transition-all" id="ram-bar" style="width: 0%"></div>
             </div>
         </div>
 
-        <div class="glass rounded-2xl p-6 card-hover transition-all">
+        <div class="card p-6">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-gray-400">Диск</span>
-                <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="text-text-secondary">Disk</span>
+                <div class="w-10 h-10 rounded-xl bg-indicator-warning/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indicator-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4">
                         </path>
@@ -57,18 +55,17 @@
                 </div>
             </div>
             <div class="text-3xl font-bold" id="disk-value">-- GB</div>
-            <div class="text-sm text-gray-500" id="disk-details">-- / -- GB</div>
-            <div class="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all" id="disk-bar"
-                    style="width: 0%"></div>
+            <div class="text-sm text-text-muted mt-1" id="disk-details">-- / -- GB</div>
+            <div class="mt-3 h-1 bg-border rounded-full overflow-hidden">
+                <div class="h-full bg-indicator-warning transition-all" id="disk-bar" style="width: 0%"></div>
             </div>
         </div>
 
-        <div class="glass rounded-2xl p-6 card-hover transition-all">
+        <div class="card p-6">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-gray-400">Docker</span>
-                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="text-text-secondary">Docker</span>
+                <div class="w-10 h-10 rounded-xl bg-indicator-info/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indicator-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4">
                         </path>
@@ -76,30 +73,103 @@
                 </div>
             </div>
             <div class="text-3xl font-bold" id="docker-running">--</div>
-            <div class="text-sm text-gray-500" id="docker-details">-- контейнеров</div>
+            <div class="text-sm text-text-muted mt-1" id="docker-details">-- containers</div>
         </div>
     </div>
 
-    <!-- System Info -->
-    <div class="glass rounded-2xl p-6">
-        <h3 class="text-lg font-semibold mb-4">Система</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="system-info">
-            <div>
-                <span class="text-gray-400 text-sm">Hostname</span>
-                <p class="font-medium" id="sys-hostname">--</p>
+    <!-- Services Status -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="card p-6">
+            <h3 class="text-lg font-semibold mb-4">Services</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-surface-hover rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <div id="nginx-status" class="w-2 h-2 rounded-full bg-text-muted"></div>
+                        <span>Nginx</span>
+                    </div>
+                    <span id="nginx-text" class="text-sm text-text-muted">Checking...</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-surface-hover rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <div id="docker-status" class="w-2 h-2 rounded-full bg-text-muted"></div>
+                        <span>Docker</span>
+                    </div>
+                    <span id="docker-text" class="text-sm text-text-muted">Checking...</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-surface-hover rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <div id="supervisor-status" class="w-2 h-2 rounded-full bg-text-muted"></div>
+                        <span>Supervisor</span>
+                    </div>
+                    <span id="supervisor-text" class="text-sm text-text-muted">Checking...</span>
+                </div>
             </div>
-            <div>
-                <span class="text-gray-400 text-sm">OS</span>
-                <p class="font-medium" id="sys-os">--</p>
+        </div>
+
+        <div class="card p-6">
+            <h3 class="text-lg font-semibold mb-4">System</h3>
+            <div class="grid grid-cols-2 gap-4" id="system-info">
+                <div>
+                    <span class="text-text-muted text-sm">Hostname</span>
+                    <p class="font-medium" id="sys-hostname">--</p>
+                </div>
+                <div>
+                    <span class="text-text-muted text-sm">OS</span>
+                    <p class="font-medium" id="sys-os">--</p>
+                </div>
+                <div>
+                    <span class="text-text-muted text-sm">Uptime</span>
+                    <p class="font-medium" id="sys-uptime">--</p>
+                </div>
+                <div>
+                    <span class="text-text-muted text-sm">Python</span>
+                    <p class="font-medium" id="sys-python">--</p>
+                </div>
             </div>
-            <div>
-                <span class="text-gray-400 text-sm">Uptime</span>
-                <p class="font-medium" id="sys-uptime">--</p>
-            </div>
-            <div>
-                <span class="text-gray-400 text-sm">Python</span>
-                <p class="font-medium" id="sys-python">--</p>
-            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card p-6">
+        <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <a href="{{ url_for('docker.store') }}"
+                class="p-4 bg-surface-hover rounded-lg hover:bg-border transition-colors text-center">
+                <svg class="w-8 h-8 mx-auto mb-2 text-indicator-info" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                <span class="text-sm">Docker Store</span>
+            </a>
+            <a href="{{ url_for('websites.index') }}"
+                class="p-4 bg-surface-hover rounded-lg hover:bg-border transition-colors text-center">
+                <svg class="w-8 h-8 mx-auto mb-2 text-indicator-success" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9">
+                    </path>
+                </svg>
+                <span class="text-sm">Manage Sites</span>
+            </a>
+            <a href="{{ url_for('files.manager') }}"
+                class="p-4 bg-surface-hover rounded-lg hover:bg-border transition-colors text-center">
+                <svg class="w-8 h-8 mx-auto mb-2 text-indicator-warning" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                </svg>
+                <span class="text-sm">File Manager</span>
+            </a>
+            <a href="{{ url_for('terminal.index') }}"
+                class="p-4 bg-surface-hover rounded-lg hover:bg-border transition-colors text-center">
+                <svg class="w-8 h-8 mx-auto mb-2 text-text-secondary" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-sm">Terminal</span>
+            </a>
         </div>
     </div>
 </div>
@@ -131,7 +201,8 @@
             // Docker
             if (data.docker) {
                 document.getElementById('docker-running').textContent = data.docker.running;
-                document.getElementById('docker-details').textContent = `${data.docker.total} контейнеров`;
+                document.getElementById('docker-details').textContent = `${data.docker.total} containers`;
+                updateServiceStatus('docker', data.docker.running > 0 || data.docker.total > 0);
             }
 
             // System
@@ -141,12 +212,47 @@
                 document.getElementById('sys-uptime').textContent = data.system.uptime_human;
                 document.getElementById('sys-python').textContent = data.system.python_version;
             }
+
+            // Services status
+            if (data.nginx) {
+                updateServiceStatus('nginx', data.nginx.running, data.nginx.installed === false ? 'Not installed' : null);
+            }
         } catch (e) {
             console.error('Stats error:', e);
         }
     }
 
+    async function checkSupervisor() {
+        try {
+            const data = await API.get('/supervisor/api/status');
+            updateServiceStatus('supervisor', data.running, !data.installed ? 'Not installed' : null);
+        } catch (e) {
+            updateServiceStatus('supervisor', false, 'Error');
+        }
+    }
+
+    function updateServiceStatus(service, running, customText = null) {
+        const dot = document.getElementById(`${service}-status`);
+        const text = document.getElementById(`${service}-text`);
+
+        if (customText === 'Not installed') {
+            dot.className = 'w-2 h-2 rounded-full bg-indicator-warning';
+            text.textContent = 'Not installed';
+            text.className = 'text-sm text-indicator-warning';
+        } else if (running) {
+            dot.className = 'w-2 h-2 rounded-full bg-indicator-success';
+            text.textContent = 'Running';
+            text.className = 'text-sm text-indicator-success';
+        } else {
+            dot.className = 'w-2 h-2 rounded-full bg-indicator-error';
+            text.textContent = customText || 'Stopped';
+            text.className = 'text-sm text-indicator-error';
+        }
+    }
+
     updateStats();
-    setInterval(updateStats, 3000);
+    checkSupervisor();
+    setInterval(updateStats, 5000);
+    setInterval(checkSupervisor, 10000);
 </script>
 {% endblock %}

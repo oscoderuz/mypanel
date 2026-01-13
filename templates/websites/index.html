@@ -18,7 +18,7 @@
     <!-- Nginx Status -->
     <div class="card p-4 mb-6 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div id="nginxStatus" class="w-2 h-2 bg-zinc-500 rounded-full"></div>
+            <div id="nginxStatus" class="w-2 h-2 bg-text-muted rounded-full"></div>
             <span class="text-sm">Nginx: <span id="nginxStatusText"
                     class="text-text-secondary">Checking...</span></span>
         </div>
@@ -100,9 +100,9 @@
         const html = domains.map(d => `
             <div class="card p-5 flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-lg ${d.ssl_enabled ? 'bg-green-500/15' : 'bg-zinc-500/15'} flex items-center justify-center">
+                    <div class="w-10 h-10 rounded-lg ${d.ssl_enabled ? 'bg-indicator-success/15' : 'bg-text-muted/15'} flex items-center justify-center">
                         ${d.ssl_enabled
-                ? '<svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>'
+                ? '<svg class="w-5 h-5 text-indicator-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>'
                 : '<svg class="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>'}
                     </div>
                     <div>
@@ -111,8 +111,8 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    ${!d.ssl_enabled ? `<button onclick="issueSSL(${d.id})" class="btn-secondary py-2 px-3 text-sm text-green-400 border-green-500/30">SSL</button>` : '<span class="badge badge-success">SSL Active</span>'}
-                    <button onclick="deleteDomain(${d.id})" class="p-2 hover:bg-surface-hover rounded-lg text-text-muted hover:text-red-400 transition-colors">
+                    ${!d.ssl_enabled ? `<button onclick="issueSSL(${d.id})" class="btn-secondary py-2 px-3 text-sm text-indicator-success border-indicator-success/30 hover:bg-indicator-success/10">Enable SSL</button>` : '<span class="badge badge-success">SSL Active</span>'}
+                    <button onclick="deleteDomain(${d.id})" class="p-2 hover:bg-indicator-error/20 rounded-lg text-text-muted hover:text-indicator-error transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
                 </div>
@@ -125,16 +125,34 @@
     async function checkNginxStatus() {
         try {
             const data = await API.get('/websites/api/nginx/status');
-            document.getElementById('nginxStatus').className = `w-2 h-2 rounded-full ${data.running ? 'bg-green-500' : 'bg-red-500'}`;
-            document.getElementById('nginxStatusText').textContent = data.running ? 'Running' : 'Stopped';
+            const dot = document.getElementById('nginxStatus');
+            const text = document.getElementById('nginxStatusText');
+
+            if (data.installed === false) {
+                dot.className = 'w-2 h-2 rounded-full bg-indicator-warning';
+                text.textContent = 'Not installed';
+                text.className = 'text-indicator-warning';
+            } else if (data.running) {
+                dot.className = 'w-2 h-2 rounded-full bg-indicator-success';
+                text.textContent = 'Running';
+                text.className = 'text-indicator-success';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-indicator-error';
+                text.textContent = 'Stopped';
+                text.className = 'text-indicator-error';
+            }
         } catch (e) {
             document.getElementById('nginxStatusText').textContent = 'Error';
         }
     }
 
     function openAddDomain() {
+        document.getElementById('domainName').value = '';
+        document.getElementById('targetPort').value = '';
+        document.getElementById('rootPath').value = '';
         document.getElementById('addModal').classList.remove('hidden');
         document.getElementById('addModal').classList.add('flex');
+        document.getElementById('domainName').focus();
     }
 
     function closeAddModal() {
@@ -153,7 +171,7 @@
 
         const res = await API.post('/websites/api/domains', data);
         if (res.success) {
-            showToast('Domain added', 'success');
+            showToast('Domain added successfully', 'success');
             closeAddModal();
             loadDomains();
         } else {
@@ -162,7 +180,7 @@
     });
 
     async function issueSSL(id) {
-        if (!confirm('Issue SSL certificate?')) return;
+        if (!confirm('Issue SSL certificate for this domain?')) return;
         showToast('Issuing certificate...', 'info');
         const res = await API.post(`/websites/api/domains/${id}/ssl`);
         showToast(res.message || res.error, res.success ? 'success' : 'error');
@@ -170,7 +188,7 @@
     }
 
     async function deleteDomain(id) {
-        if (!confirm('Delete domain?')) return;
+        if (!confirm('Delete this domain?')) return;
         const res = await API.delete(`/websites/api/domains/${id}`);
         showToast(res.message || res.error, res.success ? 'success' : 'error');
         loadDomains();
@@ -193,5 +211,6 @@
 
     loadDomains();
     checkNginxStatus();
+    setInterval(checkNginxStatus, 30000);
 </script>
 {% endblock %}

@@ -1,12 +1,155 @@
 {% extends "base.html" %}
 
-{% block title %}Файлы — {{ panel_name }}{% endblock %}
+{% block title %}Files — {{ panel_name }}{% endblock %}
+
+{% block head %}
+<style>
+    .file-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+    }
+
+    .file-item {
+        padding: 16px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-align: center;
+        user-select: none;
+    }
+
+    .file-item:hover {
+        background: #141414;
+    }
+
+    .file-item.selected {
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .file-item.drag-over {
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px dashed #22c55e;
+    }
+
+    .file-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 8px;
+    }
+
+    .file-name {
+        font-size: 12px;
+        word-break: break-word;
+        line-height: 1.3;
+        max-height: 2.6em;
+        overflow: hidden;
+    }
+
+    .drop-zone {
+        border: 2px dashed #2a2a2a;
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        transition: all 0.2s ease;
+    }
+
+    .drop-zone.active {
+        border-color: #22c55e;
+        background: rgba(34, 197, 94, 0.05);
+    }
+
+    .context-menu {
+        position: fixed;
+        z-index: 1000;
+        min-width: 180px;
+        background: #0a0a0a;
+        border: 1px solid #1f1f1f;
+        border-radius: 8px;
+        padding: 4px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .context-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #a3a3a3;
+        transition: all 0.1s ease;
+    }
+
+    .context-menu-item:hover {
+        background: #141414;
+        color: #ffffff;
+    }
+
+    .context-menu-item.danger {
+        color: #ef4444;
+    }
+
+    .context-menu-item.danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .context-menu-divider {
+        height: 1px;
+        background: #1f1f1f;
+        margin: 4px 0;
+    }
+
+    .view-toggle {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        background: #0a0a0a;
+        border-radius: 8px;
+    }
+
+    .view-toggle button {
+        padding: 6px 10px;
+        border-radius: 6px;
+        color: #737373;
+        transition: all 0.15s ease;
+    }
+
+    .view-toggle button.active {
+        background: #1f1f1f;
+        color: #ffffff;
+    }
+
+    .view-toggle button:hover:not(.active) {
+        color: #a3a3a3;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="fade-in h-[calc(100vh-4rem)] flex flex-col">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-semibold">File Manager</h1>
-        <div class="flex gap-3">
+        <div class="flex items-center gap-3">
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button id="gridViewBtn" onclick="setView('grid')" class="active" title="Grid view">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                        </path>
+                    </svg>
+                </button>
+                <button id="listViewBtn" onclick="setView('list')" title="List view">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
             <button onclick="showCreateModal('file')" class="btn-secondary flex items-center gap-2 text-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -37,19 +180,31 @@
     <!-- Breadcrumb -->
     <div class="card px-4 py-3 mb-4 flex items-center gap-2 text-sm" id="breadcrumb"></div>
 
+    <!-- Selection Info -->
+    <div id="selectionInfo" class="hidden card px-4 py-2 mb-4 flex items-center justify-between">
+        <span class="text-sm text-text-secondary"><span id="selectedCount">0</span> items selected</span>
+        <div class="flex gap-2">
+            <button onclick="deleteSelected()" class="text-sm text-indicator-error hover:underline">Delete
+                Selected</button>
+            <button onclick="clearSelection()" class="text-sm text-text-muted hover:underline">Clear Selection</button>
+        </div>
+    </div>
+
     <div class="flex-1 flex gap-4 min-h-0">
         <!-- File List -->
-        <div class="card w-1/3 overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-border">
+        <div class="card w-1/2 overflow-hidden flex flex-col" id="fileListContainer" ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <div class="p-4 border-b border-border flex items-center justify-between">
                 <h3 class="font-medium text-sm text-text-secondary">Files</h3>
+                <span id="fileCount" class="text-xs text-text-muted"></span>
             </div>
-            <div id="fileList" class="flex-1 overflow-auto p-2 space-y-1"></div>
+            <div id="fileList" class="flex-1 overflow-auto p-3"></div>
         </div>
 
         <!-- Editor -->
         <div class="card flex-1 flex flex-col overflow-hidden">
             <div class="flex items-center justify-between p-4 border-b border-border">
-                <span id="editorTitle" class="text-sm text-text-muted">Select a file</span>
+                <span id="editorTitle" class="text-sm text-text-muted">Select a file to edit</span>
                 <button id="saveBtn" onclick="saveFile()" class="hidden btn-primary py-2 px-4 text-sm">Save</button>
             </div>
             <div id="editor" class="flex-1"></div>
@@ -69,26 +224,63 @@
     </div>
 </div>
 
+<!-- Rename Modal -->
+<div id="renameModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="card p-6 w-full max-w-md m-4 fade-in">
+        <h3 class="text-lg font-semibold mb-4">Rename</h3>
+        <input type="text" id="renameName" placeholder="New name..." class="input w-full mb-4">
+        <div class="flex gap-3 justify-end">
+            <button onclick="closeRenameModal()" class="btn-secondary py-2 px-4 text-sm">Cancel</button>
+            <button onclick="confirmRename()" class="btn-primary py-2 px-4 text-sm">Rename</button>
+        </div>
+    </div>
+</div>
+
 <!-- Context Menu -->
-<div id="contextMenu" class="fixed hidden card py-2 min-w-[160px] shadow-xl z-50">
-    <button onclick="renameItem()"
-        class="w-full px-4 py-2 text-left text-sm hover:bg-surface-hover flex items-center gap-2">
+<div id="contextMenu" class="context-menu hidden">
+    <div class="context-menu-item" onclick="openItem()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+            </path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+            </path>
+        </svg>
+        Open
+    </div>
+    <div id="downloadMenuItem" class="context-menu-item" onclick="downloadItem()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        Download
+    </div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item" onclick="showRenameModal()">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
             </path>
         </svg>
         Rename
-    </button>
-    <button onclick="deleteItem()"
-        class="w-full px-4 py-2 text-left text-sm hover:bg-surface-hover text-red-400 flex items-center gap-2">
+    </div>
+    <div class="context-menu-item" onclick="copyPath()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3">
+            </path>
+        </svg>
+        Copy Path
+    </div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item danger" onclick="deleteItem()">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
             </path>
         </svg>
         Delete
-    </button>
+    </div>
 </div>
 {% endblock %}
 
@@ -99,14 +291,29 @@
     let monacoEditor = null;
     let createType = 'file';
     let contextItem = null;
+    let selectedItems = new Set();
+    let viewMode = 'grid';
 
     // Initialize Monaco
     require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
     require(['vs/editor/editor.main'], function () {
+        monaco.editor.defineTheme('mypanel-dark', {
+            base: 'vs-dark',
+            inherit: true,
+            rules: [],
+            colors: {
+                'editor.background': '#0a0a0a',
+                'editor.foreground': '#ffffff',
+                'editorLineNumber.foreground': '#404040',
+                'editorCursor.foreground': '#ffffff',
+                'editor.selectionBackground': '#3b82f633'
+            }
+        });
+
         monacoEditor = monaco.editor.create(document.getElementById('editor'), {
             value: '',
             language: 'plaintext',
-            theme: 'vs-dark',
+            theme: 'mypanel-dark',
             minimap: { enabled: false },
             fontSize: 13,
             lineNumbers: 'on',
@@ -116,8 +323,16 @@
         });
     });
 
+    function setView(mode) {
+        viewMode = mode;
+        document.getElementById('gridViewBtn').classList.toggle('active', mode === 'grid');
+        document.getElementById('listViewBtn').classList.toggle('active', mode === 'list');
+        loadPath(currentPath);
+    }
+
     async function loadPath(path = '/') {
         currentPath = path;
+        clearSelection();
         const data = await API.get(`/files/api/list?path=${encodeURIComponent(path)}`);
 
         if (data.error) {
@@ -127,7 +342,7 @@
 
         // Breadcrumb
         const parts = path.split('/').filter(p => p);
-        let breadcrumbHtml = `<a href="#" onclick="loadPath('/')" class="text-text-muted hover:text-primary transition-colors">
+        let breadcrumbHtml = `<a href="#" onclick="loadPath('/')" class="text-text-muted hover:text-white transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
         </a>`;
         let buildPath = '';
@@ -135,34 +350,163 @@
             buildPath += '/' + p;
             const bp = buildPath;
             breadcrumbHtml += `<svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            <a href="#" onclick="loadPath('${bp}')" class="text-text-muted hover:text-primary transition-colors">${p}</a>`;
+            <a href="#" onclick="loadPath('${bp}')" class="text-text-muted hover:text-white transition-colors">${p}</a>`;
         });
         document.getElementById('breadcrumb').innerHTML = breadcrumbHtml;
 
+        // File count
+        document.getElementById('fileCount').textContent = `${data.items.length} items`;
+
         // File list
         let html = '';
+
         if (data.parent) {
-            html += `<div onclick="loadPath('${data.parent}')" class="flex items-center gap-3 p-3 hover:bg-surface-hover rounded-lg cursor-pointer transition-colors">
-                <svg class="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
-                <span class="text-text-secondary">..</span>
-            </div>`;
+            if (viewMode === 'grid') {
+                html += `<div class="file-item" onclick="loadPath('${data.parent}')">
+                    <svg class="file-icon text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
+                    <div class="file-name text-text-secondary">..</div>
+                </div>`;
+            } else {
+                html += `<div onclick="loadPath('${data.parent}')" class="flex items-center gap-3 p-3 hover:bg-surface-hover rounded-lg cursor-pointer transition-colors">
+                    <svg class="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
+                    <span class="text-text-secondary">..</span>
+                </div>`;
+            }
         }
 
         data.items.forEach(item => {
-            const icon = item.is_dir
-                ? '<svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>'
-                : '<svg class="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>';
+            if (viewMode === 'grid') {
+                const icon = item.is_dir
+                    ? '<svg class="file-icon text-indicator-info" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>'
+                    : '<svg class="file-icon text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>';
 
-            html += `<div class="flex items-center gap-3 p-3 hover:bg-surface-hover rounded-lg cursor-pointer transition-colors group" 
-                      onclick="${item.is_dir ? `loadPath('${item.relative_path}')` : `openFile('${item.relative_path}')`}"
-                      oncontextmenu="showContextMenu(event, '${item.relative_path}', ${item.is_dir})">
-                ${icon}
-                <span class="flex-1 truncate text-sm">${item.name}</span>
-                <span class="text-xs text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">${item.size_human}</span>
-            </div>`;
+                html += `<div class="file-item" 
+                              data-path="${item.relative_path}"
+                              data-isdir="${item.is_dir}"
+                              onclick="handleItemClick(event, '${item.relative_path}', ${item.is_dir})"
+                              ondblclick="handleItemDblClick('${item.relative_path}', ${item.is_dir})"
+                              oncontextmenu="showContextMenu(event, '${item.relative_path}', ${item.is_dir})"
+                              draggable="true"
+                              ondragstart="handleDragStart(event, '${item.relative_path}')">
+                    ${icon}
+                    <div class="file-name">${item.name}</div>
+                </div>`;
+            } else {
+                const icon = item.is_dir
+                    ? '<svg class="w-5 h-5 text-indicator-info" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>'
+                    : '<svg class="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>';
+
+                html += `<div class="flex items-center gap-3 p-3 hover:bg-surface-hover rounded-lg cursor-pointer transition-colors group" 
+                              data-path="${item.relative_path}"
+                              data-isdir="${item.is_dir}"
+                              onclick="handleItemClick(event, '${item.relative_path}', ${item.is_dir})"
+                              ondblclick="handleItemDblClick('${item.relative_path}', ${item.is_dir})"
+                              oncontextmenu="showContextMenu(event, '${item.relative_path}', ${item.is_dir})"
+                              draggable="true"
+                              ondragstart="handleDragStart(event, '${item.relative_path}')">
+                    ${icon}
+                    <span class="flex-1 truncate text-sm">${item.name}</span>
+                    <span class="text-xs text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">${item.size_human}</span>
+                </div>`;
+            }
         });
 
-        document.getElementById('fileList').innerHTML = html || '<p class="text-text-muted text-sm p-4 text-center">Empty folder</p>';
+        const container = document.getElementById('fileList');
+        if (viewMode === 'grid') {
+            container.className = 'flex-1 overflow-auto p-3 file-grid';
+        } else {
+            container.className = 'flex-1 overflow-auto p-2 space-y-1';
+        }
+        container.innerHTML = html || '<p class="text-text-muted text-sm p-4 text-center">Empty folder</p>';
+    }
+
+    function handleItemClick(event, path, isDir) {
+        if (event.ctrlKey || event.metaKey) {
+            // Multi-select
+            if (selectedItems.has(path)) {
+                selectedItems.delete(path);
+            } else {
+                selectedItems.add(path);
+            }
+            updateSelection();
+        } else if (event.shiftKey && selectedItems.size > 0) {
+            // Range select - simplified
+            selectedItems.add(path);
+            updateSelection();
+        } else {
+            // Single click - just select
+            clearSelection();
+            selectedItems.add(path);
+            updateSelection();
+        }
+    }
+
+    function handleItemDblClick(path, isDir) {
+        if (isDir) {
+            loadPath(path);
+        } else {
+            openFile(path);
+        }
+    }
+
+    function updateSelection() {
+        document.querySelectorAll('.file-item, .flex[data-path]').forEach(el => {
+            const path = el.dataset.path;
+            if (path && selectedItems.has(path)) {
+                el.classList.add('selected');
+            } else {
+                el.classList.remove('selected');
+            }
+        });
+
+        const info = document.getElementById('selectionInfo');
+        if (selectedItems.size > 0) {
+            info.classList.remove('hidden');
+            document.getElementById('selectedCount').textContent = selectedItems.size;
+        } else {
+            info.classList.add('hidden');
+        }
+    }
+
+    function clearSelection() {
+        selectedItems.clear();
+        updateSelection();
+    }
+
+    async function deleteSelected() {
+        if (selectedItems.size === 0) return;
+        if (!confirm(`${selectedItems.size} ta elementni o'chirmoqchimisiz?`)) return;
+
+        for (const path of selectedItems) {
+            await API.post('/files/api/delete', { path });
+        }
+        showToast(`${selectedItems.size} ta element o'chirildi`, 'success');
+        loadPath(currentPath);
+    }
+
+    // Drag and Drop
+    function handleDragStart(event, path) {
+        event.dataTransfer.setData('text/plain', path);
+        event.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleDragOver(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+        document.getElementById('fileListContainer').classList.add('drag-over');
+    }
+
+    function handleDragLeave(event) {
+        document.getElementById('fileListContainer').classList.remove('drag-over');
+    }
+
+    function handleDrop(event) {
+        event.preventDefault();
+        document.getElementById('fileListContainer').classList.remove('drag-over');
+
+        if (event.dataTransfer.files.length > 0) {
+            uploadFiles(event.dataTransfer.files);
+        }
     }
 
     async function openFile(path) {
@@ -177,7 +521,7 @@
         document.getElementById('saveBtn').classList.remove('hidden');
 
         const ext = path.split('.').pop().toLowerCase();
-        const langMap = { py: 'python', js: 'javascript', ts: 'typescript', html: 'html', css: 'css', json: 'json', md: 'markdown', sh: 'shell', yml: 'yaml', yaml: 'yaml', xml: 'xml', php: 'php', sql: 'sql' };
+        const langMap = { py: 'python', js: 'javascript', ts: 'typescript', html: 'html', css: 'css', json: 'json', md: 'markdown', sh: 'shell', yml: 'yaml', yaml: 'yaml', xml: 'xml', php: 'php', sql: 'sql', go: 'go', rs: 'rust', java: 'java', c: 'c', cpp: 'cpp', h: 'c', hpp: 'cpp' };
         const lang = langMap[ext] || 'plaintext';
 
         monaco.editor.setModelLanguage(monacoEditor.getModel(), lang);
@@ -232,13 +576,18 @@
         loadPath(currentPath);
     }
 
+    // Context Menu
     function showContextMenu(e, path, isDir) {
         e.preventDefault();
         e.stopPropagation();
         contextItem = { path, isDir };
+
+        // Show/hide download option for directories
+        document.getElementById('downloadMenuItem').style.display = isDir ? 'none' : 'flex';
+
         const menu = document.getElementById('contextMenu');
-        menu.style.left = e.pageX + 'px';
-        menu.style.top = e.pageY + 'px';
+        menu.style.left = Math.min(e.pageX, window.innerWidth - 200) + 'px';
+        menu.style.top = Math.min(e.pageY, window.innerHeight - 250) + 'px';
         menu.classList.remove('hidden');
     }
 
@@ -246,12 +595,55 @@
         document.getElementById('contextMenu').classList.add('hidden');
     }
 
-    async function renameItem() {
+    function openItem() {
         hideContextMenu();
-        const newName = prompt('New name:', contextItem.path.split('/').pop());
-        if (newName) {
-            await API.post('/files/api/rename', { path: contextItem.path, new_name: newName });
+        if (contextItem.isDir) {
+            loadPath(contextItem.path);
+        } else {
+            openFile(contextItem.path);
+        }
+    }
+
+    function downloadItem() {
+        hideContextMenu();
+        if (!contextItem.isDir) {
+            window.location.href = `/files/api/download?path=${encodeURIComponent(contextItem.path)}`;
+        }
+    }
+
+    function copyPath() {
+        hideContextMenu();
+        navigator.clipboard.writeText(contextItem.path);
+        showToast('Path copied to clipboard', 'info');
+    }
+
+    function showRenameModal() {
+        hideContextMenu();
+        document.getElementById('renameName').value = contextItem.path.split('/').pop();
+        document.getElementById('renameModal').classList.remove('hidden');
+        document.getElementById('renameModal').classList.add('flex');
+        document.getElementById('renameName').focus();
+        document.getElementById('renameName').select();
+    }
+
+    function closeRenameModal() {
+        document.getElementById('renameModal').classList.add('hidden');
+        document.getElementById('renameModal').classList.remove('flex');
+    }
+
+    async function confirmRename() {
+        const newName = document.getElementById('renameName').value.trim();
+        if (!newName) {
+            showToast('Please enter a name', 'error');
+            return;
+        }
+        const data = await API.post('/files/api/rename', { path: contextItem.path, new_name: newName });
+        if (data.success) {
+            showToast('Renamed successfully', 'success');
+            closeRenameModal();
             loadPath(currentPath);
+        } else {
+            showToast(data.error, 'error');
         }
     }
 
@@ -259,6 +651,7 @@
         hideContextMenu();
         if (confirm('Are you sure you want to delete this?')) {
             await API.post('/files/api/delete', { path: contextItem.path });
+            showToast('Deleted successfully', 'success');
             loadPath(currentPath);
         }
     }
@@ -271,11 +664,20 @@
         }
         if (e.key === 'Escape') {
             closeCreateModal();
+            closeRenameModal();
+            hideContextMenu();
+        }
+        if (e.key === 'Delete' && selectedItems.size > 0) {
+            deleteSelected();
         }
     });
 
     document.getElementById('createName').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') confirmCreate();
+    });
+
+    document.getElementById('renameName').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') confirmRename();
     });
 
     loadPath('/');

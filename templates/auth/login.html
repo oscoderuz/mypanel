@@ -1,16 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}{% if is_setup %}Настройка{% else %}Вход{% endif %} — {{ panel_name }}{% endblock %}
+{% block title %}{% if is_setup %}Setup{% else %}Login{% endif %} — {{ panel_name }}{% endblock %}
 
 {% block auth_content %}
-<div class="min-h-screen flex items-center justify-center p-4">
-    <div class="glass-strong rounded-3xl p-8 w-full max-w-md fade-in">
+<div class="min-h-screen flex items-center justify-center p-4 bg-black">
+    <div class="card p-8 w-full max-w-md fade-in">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01">
+                    </path>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-white">
                 {{ panel_name }}
             </h1>
-            <p class="text-gray-400 mt-2">
-                {% if is_setup %}Создайте администратора{% else %}Войдите в панель{% endif %}
+            <p class="text-text-muted mt-2">
+                {% if is_setup %}Create your admin account{% else %}Sign in to your panel{% endif %}
             </p>
         </div>
 
@@ -18,7 +25,7 @@
         {% if messages %}
         {% for category, message in messages %}
         <div
-            class="mb-4 p-3 rounded-xl text-sm {% if category == 'danger' %}bg-red-500/20 text-red-300{% elif category == 'success' %}bg-green-500/20 text-green-300{% else %}bg-indigo-500/20 text-indigo-300{% endif %}">
+            class="mb-4 p-3 rounded-lg text-sm {% if category == 'danger' %}bg-indicator-error/20 text-indicator-error{% elif category == 'success' %}bg-indicator-success/20 text-indicator-success{% else %}bg-indicator-info/20 text-indicator-info{% endif %}">
             {{ message }}
         </div>
         {% endfor %}
@@ -29,41 +36,40 @@
             action="{% if is_setup %}{{ url_for('auth.setup') }}{% else %}{{ url_for('auth.login') }}{% endif %}"
             class="space-y-5">
             <div>
-                <label class="block text-sm text-gray-400 mb-2">Имя пользователя</label>
-                <input type="text" name="username" required autocomplete="username"
-                    class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition">
+                <label class="block text-sm text-text-secondary mb-2">Username</label>
+                <input type="text" name="username" required autocomplete="username" class="input w-full">
             </div>
 
             {% if is_setup %}
             <div>
-                <label class="block text-sm text-gray-400 mb-2">Email</label>
-                <input type="email" name="email" required autocomplete="email"
-                    class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition">
+                <label class="block text-sm text-text-secondary mb-2">Email</label>
+                <input type="email" name="email" required autocomplete="email" class="input w-full">
             </div>
             {% endif %}
 
             <div>
-                <label class="block text-sm text-gray-400 mb-2">Пароль</label>
+                <label class="block text-sm text-text-secondary mb-2">Password</label>
                 <input type="password" name="password" required
                     autocomplete="{% if is_setup %}new-password{% else %}current-password{% endif %}"
-                    class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition">
+                    class="input w-full">
             </div>
 
             {% if is_setup %}
             <div>
-                <label class="block text-sm text-gray-400 mb-2">Подтвердите пароль</label>
+                <label class="block text-sm text-text-secondary mb-2">Confirm Password</label>
                 <input type="password" name="password_confirm" required autocomplete="new-password"
-                    class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition">
+                    class="input w-full">
             </div>
             {% else %}
             <div class="flex items-center gap-2">
-                <input type="checkbox" name="remember" id="remember" class="rounded border-white/20 bg-white/5">
-                <label for="remember" class="text-sm text-gray-400">Запомнить меня</label>
+                <input type="checkbox" name="remember" id="remember"
+                    class="w-4 h-4 rounded border-border bg-surface focus:ring-0 focus:ring-offset-0">
+                <label for="remember" class="text-sm text-text-secondary">Remember me</label>
             </div>
             {% endif %}
 
-            <button type="submit" class="w-full btn-primary py-3 rounded-xl font-medium">
-                {% if is_setup %}Создать администратора{% else %}Войти{% endif %}
+            <button type="submit" class="w-full btn-primary py-3 rounded-lg font-medium">
+                {% if is_setup %}Create Admin{% else %}Sign In{% endif %}
             </button>
         </form>
     </div>

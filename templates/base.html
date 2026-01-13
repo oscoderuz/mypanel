@@ -22,17 +22,21 @@
                         sans: ['Inter', 'system-ui', 'sans-serif']
                     },
                     colors: {
-                        background: '#09090b',
-                        surface: '#18181b',
-                        'surface-hover': '#27272a',
-                        border: '#27272a',
-                        'border-light': '#3f3f46',
-                        primary: '#22c55e',
-                        'primary-hover': '#16a34a',
-                        accent: '#6366f1',
-                        'text-primary': '#fafafa',
-                        'text-secondary': '#a1a1aa',
-                        'text-muted': '#71717a'
+                        background: '#000000',
+                        surface: '#0a0a0a',
+                        'surface-hover': '#141414',
+                        border: '#1f1f1f',
+                        'border-light': '#2a2a2a',
+                        primary: '#ffffff',
+                        'primary-hover': '#e5e5e5',
+                        'text-primary': '#ffffff',
+                        'text-secondary': '#a3a3a3',
+                        'text-muted': '#737373',
+                        // Status indicators only
+                        'indicator-success': '#22c55e',
+                        'indicator-error': '#ef4444',
+                        'indicator-info': '#3b82f6',
+                        'indicator-warning': '#f59e0b'
                     }
                 }
             }
@@ -56,8 +60,8 @@
         }
 
         body {
-            background-color: #09090b;
-            color: #fafafa;
+            background-color: #000000;
+            color: #ffffff;
         }
 
         /* Scrollbar */
@@ -67,29 +71,22 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #18181b;
+            background: #0a0a0a;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #3f3f46;
+            background: #2a2a2a;
             border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #52525b;
-        }
-
-        /* Glass effect */
-        .glass {
-            background: rgba(24, 24, 27, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(63, 63, 70, 0.5);
+            background: #3a3a3a;
         }
 
         /* Sidebar styles */
         .sidebar {
-            background: #09090b;
-            border-right: 1px solid #27272a;
+            background: #000000;
+            border-right: 1px solid #1f1f1f;
         }
 
         .sidebar-item {
@@ -98,45 +95,45 @@
             gap: 12px;
             padding: 10px 16px;
             border-radius: 8px;
-            color: #a1a1aa;
+            color: #a3a3a3;
             transition: all 0.15s ease;
             font-size: 14px;
             font-weight: 500;
         }
 
         .sidebar-item:hover {
-            background: #27272a;
-            color: #fafafa;
+            background: #141414;
+            color: #ffffff;
         }
 
         .sidebar-item.active {
-            background: linear-gradient(90deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%);
-            color: #22c55e;
-            border-left: 2px solid #22c55e;
+            background: #141414;
+            color: #ffffff;
+            border-left: 2px solid #ffffff;
             margin-left: -1px;
             padding-left: 15px;
         }
 
         .sidebar-item.active svg {
-            color: #22c55e;
+            color: #ffffff;
         }
 
         /* Card styles */
         .card {
-            background: #18181b;
-            border: 1px solid #27272a;
+            background: #0a0a0a;
+            border: 1px solid #1f1f1f;
             border-radius: 12px;
             transition: all 0.15s ease;
         }
 
         .card:hover {
-            border-color: #3f3f46;
+            border-color: #2a2a2a;
         }
 
         /* Button styles */
         .btn-primary {
-            background: #22c55e;
-            color: #09090b;
+            background: #ffffff;
+            color: #000000;
             font-weight: 600;
             padding: 10px 20px;
             border-radius: 8px;
@@ -144,40 +141,41 @@
         }
 
         .btn-primary:hover {
-            background: #16a34a;
+            background: #e5e5e5;
         }
 
         .btn-secondary {
-            background: #27272a;
-            color: #fafafa;
+            background: #141414;
+            color: #ffffff;
             font-weight: 500;
             padding: 10px 20px;
             border-radius: 8px;
-            border: 1px solid #3f3f46;
+            border: 1px solid #2a2a2a;
             transition: all 0.15s ease;
         }
 
         .btn-secondary:hover {
-            background: #3f3f46;
+            background: #1f1f1f;
+            border-color: #3a3a3a;
         }
 
         /* Form inputs */
         .input {
-            background: #18181b;
-            border: 1px solid #27272a;
+            background: #0a0a0a;
+            border: 1px solid #1f1f1f;
             border-radius: 8px;
             padding: 10px 14px;
-            color: #fafafa;
+            color: #ffffff;
             outline: none;
             transition: border-color 0.15s ease;
         }
 
         .input:focus {
-            border-color: #22c55e;
+            border-color: #3a3a3a;
         }
 
         .input::placeholder {
-            color: #71717a;
+            color: #737373;
         }
 
         /* Animation */
@@ -214,8 +212,8 @@
         }
 
         .badge-warning {
-            background: rgba(234, 179, 8, 0.15);
-            color: #eab308;
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
         }
 
         .badge-error {
@@ -224,32 +222,39 @@
         }
 
         .badge-info {
-            background: rgba(99, 102, 241, 0.15);
-            color: #818cf8;
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
         }
 
         /* Progress bar */
         .progress-bar {
             height: 4px;
-            background: #27272a;
+            background: #1f1f1f;
             border-radius: 2px;
             overflow: hidden;
         }
 
         .progress-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #22c55e, #16a34a);
+            background: #ffffff;
             transition: width 0.3s ease;
         }
 
         /* Table styles */
         .table-row {
-            border-bottom: 1px solid #27272a;
+            border-bottom: 1px solid #1f1f1f;
             transition: background 0.1s ease;
         }
 
         .table-row:hover {
-            background: rgba(39, 39, 42, 0.5);
+            background: rgba(20, 20, 20, 0.5);
+        }
+
+        /* Glass effect */
+        .glass {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(31, 31, 31, 0.5);
         }
     </style>
     {% block head %}{% endblock %}
@@ -263,8 +268,8 @@
             <!-- Logo -->
             <div class="p-5 border-b border-border">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-                        <svg class="w-5 h-5 text-background" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
+                        <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01">
                             </path>
@@ -336,13 +341,23 @@
                     </svg>
                     <span>Terminal</span>
                 </a>
+
+                <a href="{{ url_for('supervisor.index') }}"
+                    class="sidebar-item {% if 'supervisor' in request.endpoint %}active{% endif %}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                        </path>
+                    </svg>
+                    <span>Supervisor</span>
+                </a>
             </nav>
 
             <!-- User section -->
             <div class="p-4 border-t border-border">
                 <div class="flex items-center gap-3">
                     <div
-                        class="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-semibold text-sm text-background">
+                        class="w-9 h-9 rounded-full bg-white flex items-center justify-center font-semibold text-sm text-black">
                         {{ current_user.username[0].upper() }}
                     </div>
                     <div class="flex-1 min-w-0">
@@ -351,7 +366,7 @@
                         </p>
                     </div>
                     <a href="{{ url_for('auth.logout') }}"
-                        class="p-2 rounded-lg hover:bg-surface-hover text-text-muted hover:text-red-400 transition-colors"
+                        class="p-2 rounded-lg hover:bg-surface-hover text-text-muted hover:text-indicator-error transition-colors"
                         title="Logout">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -369,7 +384,7 @@
             {% if messages %}
             {% for category, message in messages %}
             <div
-                class="mb-4 p-4 rounded-lg border fade-in {% if category == 'danger' %}border-red-500/30 bg-red-500/10 text-red-400{% elif category == 'success' %}border-green-500/30 bg-green-500/10 text-green-400{% else %}border-accent/30 bg-accent/10 text-accent{% endif %}">
+                class="mb-4 p-4 rounded-lg border fade-in {% if category == 'danger' %}border-indicator-error/30 bg-indicator-error/10 text-indicator-error{% elif category == 'success' %}border-indicator-success/30 bg-indicator-success/10 text-indicator-success{% else %}border-indicator-info/30 bg-indicator-info/10 text-indicator-info{% endif %}">
                 {{ message }}
             </div>
             {% endfor %}
@@ -406,12 +421,13 @@
 
         function showToast(message, type = 'info') {
             const colors = {
-                success: 'bg-green-500/90 border-green-400',
-                error: 'bg-red-500/90 border-red-400',
-                info: 'bg-accent/90 border-accent'
+                success: 'bg-indicator-success/90 border-indicator-success',
+                error: 'bg-indicator-error/90 border-indicator-error',
+                info: 'bg-indicator-info/90 border-indicator-info',
+                warning: 'bg-indicator-warning/90 border-indicator-warning'
             };
             const toast = document.createElement('div');
-            toast.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-5 py-3 rounded-lg shadow-2xl fade-in z-50 border backdrop-blur-sm font-medium text-sm`;
+            toast.className = `fixed bottom-4 right-4 ${colors[type] || colors.info} text-white px-5 py-3 rounded-lg shadow-2xl fade-in z-50 border backdrop-blur-sm font-medium text-sm`;
             toast.textContent = message;
             document.body.appendChild(toast);
             setTimeout(() => {

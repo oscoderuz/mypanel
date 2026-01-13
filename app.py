@@ -72,6 +72,7 @@ def create_app(config_class=None):
     from blueprints.websites import websites_bp
     from blueprints.files import files_bp
     from blueprints.terminal import terminal_bp
+    from blueprints.supervisor import supervisor_bp
     
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(dashboard_bp)
@@ -79,6 +80,7 @@ def create_app(config_class=None):
     app.register_blueprint(websites_bp, url_prefix='/websites')
     app.register_blueprint(files_bp, url_prefix='/files')
     app.register_blueprint(terminal_bp, url_prefix='/terminal')
+    app.register_blueprint(supervisor_bp, url_prefix='/supervisor')
     
     # Root redirect
     @app.route('/')

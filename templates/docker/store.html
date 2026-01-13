@@ -18,9 +18,11 @@
     <!-- Search -->
     <div class="card p-6 mb-6">
         <div class="flex gap-4">
-            <input type="text" id="searchInput" placeholder="Search Docker Hub images..." class="input flex-1">
+            <input type="text" id="searchInput" placeholder="Search Docker Hub images (e.g., nginx, mysql, redis)..."
+                class="input flex-1">
             <button onclick="searchImages()" class="btn-primary px-6">Search</button>
         </div>
+        <p class="text-sm text-text-muted mt-2">Search Docker Hub for container images to deploy</p>
     </div>
 
     <!-- Results -->
@@ -28,8 +30,8 @@
 
     <!-- Loading -->
     <div id="loading" class="hidden text-center py-16">
-        <div class="inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-4 text-text-muted text-sm">Searching...</p>
+        <div class="inline-block w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-text-muted text-sm">Searching Docker Hub...</p>
     </div>
 
     <!-- Empty state -->
@@ -39,6 +41,7 @@
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
         </svg>
         <p class="text-text-muted">Search for Docker images to get started</p>
+        <p class="text-sm text-text-muted mt-2">Try searching for: nginx, mysql, postgres, redis, wordpress</p>
     </div>
 </div>
 
@@ -51,7 +54,7 @@
 
             <div>
                 <label class="block text-sm text-text-secondary mb-2">Container Name</label>
-                <input type="text" id="containerName" required class="input w-full">
+                <input type="text" id="containerName" required class="input w-full" placeholder="my-container">
             </div>
 
             <div>
@@ -64,6 +67,7 @@
             <div>
                 <label class="block text-sm text-text-secondary mb-2">Port Mapping (host:container)</label>
                 <input type="text" id="portMapping" placeholder="8080:80" class="input w-full">
+                <p class="text-xs text-text-muted mt-1">Example: 8080:80 or 3000:3000,3001:3001</p>
             </div>
 
             <div>
@@ -73,7 +77,8 @@
 
             <div>
                 <label class="block text-sm text-text-secondary mb-2">Environment Variables</label>
-                <textarea id="envVars" rows="3" placeholder="KEY=value" class="input w-full resize-none"></textarea>
+                <textarea id="envVars" rows="3" placeholder="KEY=value&#10;ANOTHER_KEY=another_value"
+                    class="input w-full resize-none"></textarea>
             </div>
 
             <div id="pullProgress" class="hidden">
@@ -98,7 +103,16 @@
 
     async function searchImages() {
         const query = document.getElementById('searchInput').value.trim();
-        if (!query) return;
+
+        if (!query) {
+            showToast('Enter a search query', 'warning');
+            return;
+        }
+
+        if (query.length < 2) {
+            showToast('Enter at least 2 characters', 'warning');
+            return;
+        }
 
         document.getElementById('loading').classList.remove('hidden');
         document.getElementById('emptyState').classList.add('hidden');
@@ -111,10 +125,16 @@
             if (data.error) {
                 showToast(data.error, 'error');
                 document.getElementById('emptyState').classList.remove('hidden');
+                document.getElementById('emptyState').innerHTML = `
+                    <svg class="w-16 h-16 mx-auto text-indicator-error mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-indicator-error">${data.error}</p>
+                `;
                 return;
             }
 
-            if (data.results.length === 0) {
+            if (!data.results || data.results.length === 0) {
                 document.getElementById('emptyState').classList.remove('hidden');
                 document.getElementById('emptyState').innerHTML = `
                     <svg class="w-16 h-16 mx-auto text-text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,12 +152,12 @@
                             <h3 class="font-semibold truncate">${img.name}</h3>
                             ${img.is_official ? '<span class="badge badge-info mt-1">Official</span>' : ''}
                         </div>
-                        <div class="flex items-center gap-1 text-yellow-400 ml-2">
+                        <div class="flex items-center gap-1 text-indicator-warning ml-2">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                             <span class="text-sm">${img.stars}</span>
                         </div>
                     </div>
-                    <p class="text-sm text-text-muted mb-4 line-clamp-2">${img.description || 'No description'}</p>
+                    <p class="text-sm text-text-muted mb-4 line-clamp-2">${img.description || 'No description available'}</p>
                     <button onclick="openInstall('${img.name}')" class="btn-primary w-full py-2 text-sm">Deploy</button>
                 </div>
             `).join('');
@@ -145,7 +165,7 @@
             document.getElementById('results').innerHTML = html;
         } catch (e) {
             document.getElementById('loading').classList.add('hidden');
-            showToast('Search error', 'error');
+            showToast('Search error. Please try again.', 'error');
             document.getElementById('emptyState').classList.remove('hidden');
         }
     }
@@ -153,20 +173,32 @@
     async function openInstall(image) {
         document.getElementById('installImage').value = image;
         document.getElementById('containerName').value = image.split('/').pop().replace(/[^a-z0-9]/gi, '-');
+        document.getElementById('portMapping').value = '';
+        document.getElementById('volumeMapping').value = '';
+        document.getElementById('envVars').value = '';
         document.getElementById('installModal').classList.remove('hidden');
         document.getElementById('installModal').classList.add('flex');
+        document.getElementById('pullProgress').classList.add('hidden');
+        document.getElementById('installBtn').disabled = false;
 
         try {
             const data = await API.get(`/docker/api/tags/${image}`);
             const select = document.getElementById('imageTag');
-            select.innerHTML = data.tags.map(t => `<option value="${t}">${t}</option>`).join('');
-        } catch (e) { }
+            if (data.tags && data.tags.length > 0) {
+                select.innerHTML = data.tags.map(t => `<option value="${t}">${t}</option>`).join('');
+            } else {
+                select.innerHTML = '<option value="latest">latest</option>';
+            }
+        } catch (e) {
+            document.getElementById('imageTag').innerHTML = '<option value="latest">latest</option>';
+        }
     }
 
     function closeModal() {
         document.getElementById('installModal').classList.add('hidden');
         document.getElementById('installModal').classList.remove('flex');
         document.getElementById('pullProgress').classList.add('hidden');
+        document.getElementById('installBtn').disabled = false;
     }
 
     document.getElementById('installForm').addEventListener('submit', async (e) => {
@@ -174,10 +206,15 @@
 
         const image = document.getElementById('installImage').value;
         const tag = document.getElementById('imageTag').value;
-        const name = document.getElementById('containerName').value;
+        const name = document.getElementById('containerName').value.trim();
         const portsStr = document.getElementById('portMapping').value;
         const volumesStr = document.getElementById('volumeMapping').value;
         const envStr = document.getElementById('envVars').value;
+
+        if (!name) {
+            showToast('Please enter a container name', 'error');
+            return;
+        }
 
         const ports = {};
         if (portsStr) {
@@ -199,11 +236,20 @@
 
         document.getElementById('pullProgress').classList.remove('hidden');
         document.getElementById('installBtn').disabled = true;
+        document.getElementById('progressBar').style.width = '10%';
         document.getElementById('progressText').textContent = 'Pulling image...';
 
         try {
-            await API.post('/docker/api/images/pull', { image, tag });
-            document.getElementById('progressBar').style.width = '50%';
+            const pullResult = await API.post('/docker/api/images/pull', { image, tag });
+
+            if (!pullResult.success && pullResult.error) {
+                showToast(pullResult.error, 'error');
+                document.getElementById('pullProgress').classList.add('hidden');
+                document.getElementById('installBtn').disabled = false;
+                return;
+            }
+
+            document.getElementById('progressBar').style.width = '60%';
             document.getElementById('progressText').textContent = 'Creating container...';
 
             const result = await API.post('/docker/api/containers', {
@@ -216,15 +262,16 @@
 
             if (result.success) {
                 document.getElementById('progressBar').style.width = '100%';
-                showToast('Container deployed!', 'success');
+                document.getElementById('progressText').textContent = 'Done!';
+                showToast('Container deployed successfully!', 'success');
                 setTimeout(() => { closeModal(); window.location.href = '/docker/containers'; }, 1000);
             } else {
-                showToast(result.error, 'error');
+                showToast(result.error || 'Failed to create container', 'error');
                 document.getElementById('pullProgress').classList.add('hidden');
                 document.getElementById('installBtn').disabled = false;
             }
         } catch (e) {
-            showToast('Deployment error', 'error');
+            showToast('Deployment error. Please try again.', 'error');
             document.getElementById('pullProgress').classList.add('hidden');
             document.getElementById('installBtn').disabled = false;
         }
@@ -233,5 +280,8 @@
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
     });
+
+    // Focus search on load
+    document.getElementById('searchInput').focus();
 </script>
 {% endblock %}
