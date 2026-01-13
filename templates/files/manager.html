@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Файлы — {{ panel_name }}{% endblock %}
+
+{% block content %}
+<div class="fade-in h-[calc(100vh-8rem)] flex flex-col">
+    <div class="flex items-center justify-between mb-4">
+        <h1 class="text-3xl font-bold">Файловый менеджер</h1>
+        <div class="flex gap-2">
+            <button onclick="createNew('file')"
+                class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">Новый файл</button>
+            <button onclick="createNew('directory')"
+                class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">Новая папка</button>
+            <label class="px-4 py-2 btn-primary rounded-lg text-sm cursor-pointer">
+                Загрузить
+                <input type="file" id="uploadInput" multiple class="hidden" onchange="uploadFiles(this.files)">
+            </label>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="glass rounded-xl px-4 py-2 mb-4 flex items-center gap-2 text-sm" id="breadcrumb"></div>
+
+    <div class="flex-1 flex gap-4 min-h-0">
+        <!-- File List -->
+        <div class="glass rounded-2xl p-4 w-1/3 overflow-auto">
+            <div id="fileList" class="space-y-1"></div>
+        </div>
+
+        <!-- Editor -->
+        <div class="glass rounded-2xl flex-1 flex flex-col overflow-hidden">
+            <div class="flex items-center justify-between p-4 border-b border-white/10">
+                <span id="editorTitle" class="text-sm text-gray-400">Выберите файл</span>
+                <button id="saveBtn" onclick="saveFile()"
+                    class="hidden btn-primary px-4 py-1 rounded-lg text-sm">Сохранить</button>
+            </div>
+            <div id="editor" class="flex-1"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentPath = '/';
+    let currentFile = null;
+    let monacoEditor = null;
+
+    // Initialize Monaco
+    require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
+    require(['vs/editor/editor.main'], function () {
+        monacoEditor = monaco.editor.create(document.getElementById('editor'), {
+            value: '',
+            language: 'plaintext',
+            theme: 'vs-dark',
+            minimap: { enabled: false },
+            fontSize: 14,
+            lineNumbers: 'on',
+            scrollBeyondLastLine: false,
+            automaticLayout: true
+        });
+    });
+
+    async function loadPath(path = '/') {
+        currentPath = path;
+        const data = await API.get(`/files/api/list?path=${encodeURIComponent(path)}`);
+
+        if (data.error) {
+            showToast(data.error, 'error');
+            return;
+        }
+
+        // Breadcrumb
+        const parts = path.split('/').filter(p => p);
+        let breadcrumbHtml = '<a href="#" onclick="loadPath(\'/\')" class="hover:text-indigo-400">Root</a>';
+        let buildPath = '';
+        parts.forEach(p => {
+            buildPath += '/' + p;
+            const bp = buildPath;
+            breadcrumbHtml += ` <span class="text-gray-500">/</span> <a href="#" onclick="loadPath('${bp}')" class="hover:text-indigo-400">${p}</a>`;
+        });
+        document.getElementById('breadcrumb').innerHTML = breadcrumbHtml;
+
+        // File list
+        let html = '';
+        if (data.parent) {
+            html += `<div onclick="loadPath('${data.parent}')" class="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg cursor-pointer">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
+            <span>..</span>
+        </div>`;
+        }
+
+        data.items.forEach(item => {
+            const icon = item.is_dir
+                ? '<svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>'
+                : '<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>';
+
+            html += `<div class="flex items-center gap-3 p-2 hover:bg-white/10 rounded-lg cursor-pointer group" 
+                      onclick="${item.is_dir ? `loadPath('${item.relative_path}')` : `openFile('${item.relative_path}')`}"
+                      oncontextmenu="showContextMenu(event, '${item.relative_path}', ${item.is_dir})">
+            ${icon}
+            <span class="flex-1 truncate">${item.name}</span>
+            <span class="text-xs text-gray-500">${item.size_human}</span>
+        </div>`;
+        });
+
+        document.getElementById('fileList').innerHTML = html || '<p class="text-gray-500 text-sm p-4">Пустая папка</p>';
+    }
+
+    async function openFile(path) {
+        const data = await API.get(`/files/api/read?path=${encodeURIComponent(path)}`);
+        if (data.error) {
+            showToast(data.error, 'error');
+            return;
+        }
+
+        currentFile = path;
+        document.getElementById('editorTitle').textContent = path;
+        document.getElementById('saveBtn').classList.remove('hidden');
+
+        // Set language
+        const ext = path.split('.').pop().toLowerCase();
+        const langMap = { py: 'python', js: 'javascript', ts: 'typescript', html: 'html', css: 'css', json: 'json', md: 'markdown', sh: 'shell', yml: 'yaml', yaml: 'yaml', xml: 'xml', php: 'php', sql: 'sql' };
+        const lang = langMap[ext] || 'plaintext';
+
+        monaco.editor.setModelLanguage(monacoEditor.getModel(), lang);
+        monacoEditor.setValue(data.content);
+    }
+
+    async function saveFile() {
+        if (!currentFile) return;
+        const content = monacoEditor.getValue();
+        const data = await API.post('/files/api/save', { path: currentFile, content });
+        showToast(data.message || data.error, data.success ? 'success' : 'error');
+    }
+
+    async function createNew(type) {
+        const name = prompt(type === 'directory' ? 'Имя папки:' : 'Имя файла:');
+        if (!name) return;
+        const data = await API.post('/files/api/create', { path: currentPath, name, type });
+        if (data.success) {
+            showToast('Создано', 'success');
+            loadPath(currentPath);
+        } else {
+            showToast(data.error, 'error');
+        }
+    }
+
+    async function uploadFiles(files) {
+        const formData = new FormData();
+        formData.append('path', currentPath);
+        for (const file of files) formData.append('files', file);
+
+        const res = await fetch('/files/api/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        showToast(`Загружено: ${data.uploaded.length} файлов`, 'success');
+        loadPath(currentPath);
+    }
+
+    function showContextMenu(e, path, isDir) {
+        e.preventDefault();
+        const action = prompt('Действие: rename / delete / chmod');
+        if (action === 'rename') {
+            const newName = prompt('Новое имя:');
+            if (newName) API.post('/files/api/rename', { path, new_name: newName }).then(() => loadPath(currentPath));
+        } else if (action === 'delete') {
+            if (confirm('Удалить?')) API.post('/files/api/delete', { path }).then(() => loadPath(currentPath));
+        } else if (action === 'chmod') {
+            const mode = prompt('Права (например 755):');
+            if (mode) API.post('/files/api/chmod', { path, mode }).then(() => showToast('Права изменены', 'success'));
+        }
+    }
+
+    // Keyboard shortcut for save
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveFile();
+        }
+    });
+
+    loadPath('/');
+</script>
+{% endblock %}

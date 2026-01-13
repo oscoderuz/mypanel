@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Дашборд — {{ panel_name }}{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h1 class="text-3xl font-bold mb-8">Дашборд</h1>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="glass rounded-2xl p-6 card-hover transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-gray-400">CPU</span>
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold" id="cpu-value">--%</div>
+            <div class="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all" id="cpu-bar"
+                    style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6 card-hover transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-gray-400">RAM</span>
+                <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold" id="ram-value">-- GB</div>
+            <div class="text-sm text-gray-500" id="ram-details">-- / -- GB</div>
+            <div class="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all" id="ram-bar"
+                    style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6 card-hover transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-gray-400">Диск</span>
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold" id="disk-value">-- GB</div>
+            <div class="text-sm text-gray-500" id="disk-details">-- / -- GB</div>
+            <div class="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all" id="disk-bar"
+                    style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-6 card-hover transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-gray-400">Docker</span>
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold" id="docker-running">--</div>
+            <div class="text-sm text-gray-500" id="docker-details">-- контейнеров</div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="glass rounded-2xl p-6">
+            <h3 class="text-lg font-semibold mb-4">CPU History</h3>
+            <canvas id="cpuChart" height="200"></canvas>
+        </div>
+        <div class="glass rounded-2xl p-6">
+            <h3 class="text-lg font-semibold mb-4">Memory History</h3>
+            <canvas id="memChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="glass rounded-2xl p-6">
+        <h3 class="text-lg font-semibold mb-4">Система</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="system-info">
+            <div>
+                <span class="text-gray-400 text-sm">Hostname</span>
+                <p class="font-medium" id="sys-hostname">--</p>
+            </div>
+            <div>
+                <span class="text-gray-400 text-sm">OS</span>
+                <p class="font-medium" id="sys-os">--</p>
+            </div>
+            <div>
+                <span class="text-gray-400 text-sm">Uptime</span>
+                <p class="font-medium" id="sys-uptime">--</p>
+            </div>
+            <div>
+                <span class="text-gray-400 text-sm">Python</span>
+                <p class="font-medium" id="sys-python">--</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const cpuData = [], memData = [], labels = [];
+    const maxPoints = 30;
+
+    const chartConfig = {
+        type: 'line',
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { display: false },
+                y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } }
+            },
+            elements: { point: { radius: 0 }, line: { tension: 0.4 } }
+        }
+    };
+
+    const cpuChart = new Chart(document.getElementById('cpuChart'), {
+        ...chartConfig,
+        data: { labels, datasets: [{ data: cpuData, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true }] }
+    });
+
+    const memChart = new Chart(document.getElementById('memChart'), {
+        ...chartConfig,
+        data: { labels, datasets: [{ data: memData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true }] }
+    });
+
+    async function updateStats() {
+        try {
+            const data = await API.get('/api/stats');
+
+            // CPU
+            document.getElementById('cpu-value').textContent = data.cpu.percent + '%';
+            document.getElementById('cpu-bar').style.width = data.cpu.percent + '%';
+
+            // RAM
+            document.getElementById('ram-value').textContent = data.memory.used_gb + ' GB';
+            document.getElementById('ram-details').textContent = `${data.memory.used_gb} / ${data.memory.total_gb} GB`;
+            document.getElementById('ram-bar').style.width = data.memory.percent + '%';
+
+            // Disk
+            if (data.disk && data.disk.length > 0) {
+                const disk = data.disk[0];
+                document.getElementById('disk-value').textContent = disk.used_gb + ' GB';
+                document.getElementById('disk-details').textContent = `${disk.used_gb} / ${disk.total_gb} GB`;
+                document.getElementById('disk-bar').style.width = disk.percent + '%';
+            }
+
+            // Docker
+            if (data.docker) {
+                document.getElementById('docker-running').textContent = data.docker.running;
+                document.getElementById('docker-details').textContent = `${data.docker.total} контейнеров`;
+            }
+
+            // System
+            if (data.system) {
+                document.getElementById('sys-hostname').textContent = data.system.hostname;
+                document.getElementById('sys-os').textContent = `${data.system.os} ${data.system.os_release}`;
+                document.getElementById('sys-uptime').textContent = data.system.uptime_human;
+                document.getElementById('sys-python').textContent = data.system.python_version;
+            }
+
+            // Update charts
+            labels.push('');
+            cpuData.push(data.cpu.percent);
+            memData.push(data.memory.percent);
+
+            if (labels.length > maxPoints) {
+                labels.shift();
+                cpuData.shift();
+                memData.shift();
+            }
+
+            cpuChart.update('none');
+            memChart.update('none');
+        } catch (e) {
+            console.error('Stats error:', e);
+        }
+    }
+
+    updateStats();
+    setInterval(updateStats, 3000);
+</script>
+{% endblock %}

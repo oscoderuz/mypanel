@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Терминал — {{ panel_name }}{% endblock %}
+
+{% block head %}
+<style>
+    #terminal-container {
+        height: calc(100vh - 10rem);
+    }
+
+    .xterm {
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="flex items-center justify-between mb-4">
+        <h1 class="text-3xl font-bold">Терминал</h1>
+        <div class="flex gap-2">
+            <button onclick="reconnect()"
+                class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">Переподключить</button>
+            <button onclick="clearTerminal()"
+                class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">Очистить</button>
+        </div>
+    </div>
+
+    <div id="status" class="glass rounded-xl px-4 py-2 mb-4 flex items-center gap-2 text-sm">
+        <div id="statusDot" class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+        <span id="statusText">Подключение...</span>
+    </div>
+
+    <div class="glass rounded-2xl p-4 overflow-hidden" id="terminal-container"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let term, fitAddon, socket;
+
+    function initTerminal() {
+        // Initialize xterm.js
+        term = new Terminal({
+            cursorBlink: true,
+            fontSize: 14,
+            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+            theme: {
+                background: 'rgba(0, 0, 0, 0.5)',
+                foreground: '#e5e5e5',
+                cursor: '#6366f1',
+                selection: 'rgba(99, 102, 241, 0.3)'
+            },
+            allowProposedApi: true
+        });
+
+        fitAddon = new FitAddon.FitAddon();
+        term.loadAddon(fitAddon);
+
+        term.open(document.getElementById('terminal-container'));
+        fitAddon.fit();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            fitAddon.fit();
+            if (socket && socket.connected) {
+                socket.emit('terminal_resize', { rows: term.rows, cols: term.cols });
+            }
+        });
+
+        // Handle input
+        term.onData(data => {
+            if (socket && socket.connected) {
+                socket.emit('terminal_input', { data });
+            }
+        });
+
+        // Connect to WebSocket
+        connectSocket();
+    }
+
+    function connectSocket() {
+        setStatus('connecting');
+
+        socket = io({
+            transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 5
+        });
+
+        socket.on('connect', () => {
+            socket.emit('terminal_connect');
+        });
+
+        socket.on('terminal_ready', (data) => {
+            setStatus('connected');
+            term.write('\\r\\n\\x1b[32mТерминал подключен\\x1b[0m\\r\\n\\r\\n');
+            fitAddon.fit();
+            socket.emit('terminal_resize', { rows: term.rows, cols: term.cols });
+        });
+
+        socket.on('terminal_output', (data) => {
+            term.write(data.data);
+        });
+
+        socket.on('terminal_error', (data) => {
+            setStatus('error');
+            term.write(`\\r\\n\\x1b[31mОшибка: ${data.message}\\x1b[0m\\r\\n`);
+        });
+
+        socket.on('disconnect', () => {
+            setStatus('disconnected');
+            term.write('\\r\\n\\x1b[33mСоединение потеряно\\x1b[0m\\r\\n');
+        });
+
+        socket.on('connect_error', () => {
+            setStatus('error');
+        });
+    }
+
+    function setStatus(status) {
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('statusText');
+
+        const states = {
+            connecting: { color: 'bg-yellow-500', text: 'Подключение...' },
+            connected: { color: 'bg-green-500 animate-pulse', text: 'Подключено' },
+            disconnected: { color: 'bg-gray-500', text: 'Отключено' },
+            error: { color: 'bg-red-500', text: 'Ошибка подключения' }
+        };
+
+        const state = states[status] || states.disconnected;
+        dot.className = `w-2 h-2 rounded-full ${state.color}`;
+        text.textContent = state.text;
+    }
+
+    function reconnect() {
+        if (socket) socket.disconnect();
+        term.clear();
+        term.write('\\x1b[33mПереподключение...\\x1b[0m\\r\\n');
+        connectSocket();
+    }
+
+    function clearTerminal() {
+        term.clear();
+    }
+
+    // Initialize on page load
+    initTerminal();
+</script>
+{% endblock %}

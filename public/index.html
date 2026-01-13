@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="MyPanel - Ubuntu Server uchun zamonaviy, chiroyli va kuchli boshqaruv paneli. aaPanel/Umbrel alternativasi.">
+    <meta name="keywords" content="server panel, ubuntu, docker, nginx, web hosting, server management">
+    <title>MyPanel — Ubuntu Server Boshqaruv Paneli</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">⬡</span>
+                <span>MyPanel</span>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Imkoniyatlar</a>
+                <a href="#install">O'rnatish</a>
+                <a href="#screenshots">Skrinshotlar</a>
+                <a href="#docs">Hujjatlar</a>
+            </div>
+            <a href="#install" class="btn btn-primary">Boshlash</a>
+            <button class="mobile-menu" id="mobileMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-content">
+            <div class="hero-badge">🚀 Yangi versiya chiqdi v1.0</div>
+            <h1 class="hero-title">
+                Serveringizni
+                <span class="gradient-text">oson boshqaring</span>
+            </h1>
+            <p class="hero-subtitle">
+                MyPanel — Ubuntu Server uchun zamonaviy, yengil va kuchli boshqaruv paneli.
+                Docker, Nginx, SSL sertifikatlarini bir joydan boshqaring.
+            </p>
+            <div class="hero-buttons">
+                <a href="#install" class="btn btn-primary btn-lg">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    O'rnatish
+                </a>
+                <a href="#features" class="btn btn-outline btn-lg">
+                    Ko'proq bilish
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">5 daqiqa</span>
+                    <span class="stat-label">O'rnatish vaqti</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">Bepul</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">Open Source</span>
+                    <span class="stat-label">Ochiq kod</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="browser-mockup">
+                <div class="browser-header">
+                    <div class="browser-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="browser-url">https://server.example.com</div>
+                </div>
+                <div class="browser-content">
+                    <div class="dashboard-preview">
+                        <div class="sidebar-preview">
+                            <div class="logo-preview">⬡</div>
+                            <div class="menu-item active"></div>
+                            <div class="menu-item"></div>
+                            <div class="menu-item"></div>
+                            <div class="menu-item"></div>
+                        </div>
+                        <div class="main-preview">
+                            <div class="card-row">
+                                <div class="stat-card cpu"></div>
+                                <div class="stat-card ram"></div>
+                                <div class="stat-card disk"></div>
+                            </div>
+                            <div class="chart-preview"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Imkoniyatlar</span>
+                <h2 class="section-title">Hamma kerakli vositalar bir joyda</h2>
+                <p class="section-subtitle">MyPanel serveringizni boshqarish uchun barcha zamonaviy vositalarni taqdim
+                    etadi</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon docker">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3>Docker Store</h3>
+                    <p>Docker Hub'dan ilovalarni qidiring, bir klik bilan o'rnating. Nginx, MySQL, WordPress va
+                        boshqalar.</p>
+                    <ul class="feature-list">
+                        <li>Docker Hub qidiruvi</li>
+                        <li>Bir klik o'rnatish</li>
+                        <li>Portlar va volume sozlash</li>
+                        <li>Konteyner boshqaruvi</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon websites">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3>Saytlar & SSL</h3>
+                    <p>Domenlarni qo'shing, Nginx reverse proxy avtomatik sozlanadi. Let's Encrypt SSL bir klikda.</p>
+                    <ul class="feature-list">
+                        <li>Domen boshqaruvi</li>
+                        <li>Nginx reverse proxy</li>
+                        <li>Bepul SSL sertifikat</li>
+                        <li>Konfiguratsiya muharriri</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon files">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>Fayl Menejer</h3>
+                    <p>Fayllarni brauzerda boshqaring. Monaco Editor bilan kodni to'g'ridan-to'g'ri tahrirlang.</p>
+                    <ul class="feature-list">
+                        <li>Drag & Drop yuklash</li>
+                        <li>Monaco kod muharriri</li>
+                        <li>Chmod, o'chirish, nomi o'zgartirish</li>
+                        <li>Fayl yuklab olish</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon terminal">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3>Web Terminal</h3>
+                    <p>SSH orqali serverga brauzerdan ulaning. To'liq terminal funksionaliligi.</p>
+                    <ul class="feature-list">
+                        <li>Real-time WebSocket</li>
+                        <li>xterm.js integratsiya</li>
+                        <li>SSH sessiyalar</li>
+                        <li>Buyruqlar tarixi</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon monitoring">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3>Monitoring</h3>
+                    <p>CPU, RAM, Disk va tarmoq statistikasini real vaqtda kuzating. Chart.js grafiklar.</p>
+                    <ul class="feature-list">
+                        <li>Real-time statistika</li>
+                        <li>Interaktiv grafiklar</li>
+                        <li>Docker statistikasi</li>
+                        <li>Tizim ma'lumotlari</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon security">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3>Xavfsizlik</h3>
+                    <p>Bcrypt parol xeshlash, sessiya boshqaruvi, admin huquqlari tizimi.</p>
+                    <ul class="feature-list">
+                        <li>Xavfsiz autentifikatsiya</li>
+                        <li>Sessiya boshqaruvi</li>
+                        <li>Admin huquqlari</li>
+                        <li>HTTPS qo'llab-quvvatlash</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Install Section -->
+    <section class="install" id="install">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">O'rnatish</span>
+                <h2 class="section-title">5 daqiqada o'rnating</h2>
+                <p class="section-subtitle">Ubuntu Server 20.04+ da MyPanel o'rnatish juda oson</p>
+            </div>
+
+            <div class="install-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Repozitoriyani klonlang</h3>
+                        <p>GitHub'dan MyPanel kodini yuklab oling</p>
+                        <div class="code-block">
+                            <code>git clone https://github.com/yourusername/mypanel.git /opt/mypanel</code>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>O'rnatish skriptini ishga tushiring</h3>
+                        <p>Skript barcha kerakli dasturlarni o'rnatadi: Python, Docker, Nginx, Certbot</p>
+                        <div class="code-block">
+                            <code>cd /opt/mypanel && sudo bash install.sh</code>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Panelga kiring</h3>
+                        <p>Brauzerda server IP manzilini oching va admin akkount yarating</p>
+                        <div class="code-block">
+                            <code>http://YOUR_SERVER_IP</code>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="requirements">
+                <h3>Tizim talablari</h3>
+                <div class="req-grid">
+                    <div class="req-item">
+                        <span class="req-icon">🐧</span>
+                        <span>Ubuntu 20.04+</span>
+                    </div>
+                    <div class="req-item">
+                        <span class="req-icon">🐍</span>
+                        <span>Python 3.10+</span>
+                    </div>
+                    <div class="req-item">
+                        <span class="req-icon">💾</span>
+                        <span>1GB RAM</span>
+                    </div>
+                    <div class="req-item">
+                        <span class="req-icon">💿</span>
+                        <span>10GB Disk</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section class="screenshots" id="screenshots">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Skrinshotlar</span>
+                <h2 class="section-title">Panelni ko'ring</h2>
+                <p class="section-subtitle">Zamonaviy va intuitiv interfeys</p>
+            </div>
+
+            <div class="screenshots-grid">
+                <div class="screenshot-card">
+                    <div class="screenshot-preview dashboard-shot">
+                        <div class="shot-header">Dashboard</div>
+                        <div class="shot-stats">
+                            <div class="mini-stat"></div>
+                            <div class="mini-stat"></div>
+                            <div class="mini-stat"></div>
+                        </div>
+                        <div class="shot-chart"></div>
+                    </div>
+                    <h4>Dashboard</h4>
+                    <p>Real-time tizim statistikasi</p>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-preview docker-shot">
+                        <div class="shot-header">Docker Store</div>
+                        <div class="shot-search"></div>
+                        <div class="shot-cards">
+                            <div class="mini-card"></div>
+                            <div class="mini-card"></div>
+                        </div>
+                    </div>
+                    <h4>Docker Store</h4>
+                    <p>Ilovalarni qidirish va o'rnatish</p>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-preview files-shot">
+                        <div class="shot-header">Fayl Menejer</div>
+                        <div class="shot-files">
+                            <div class="file-line"></div>
+                            <div class="file-line"></div>
+                            <div class="file-line"></div>
+                        </div>
+                        <div class="shot-editor"></div>
+                    </div>
+                    <h4>Fayl Menejer</h4>
+                    <p>Monaco Editor integratsiya</p>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-preview terminal-shot">
+                        <div class="shot-header">Terminal</div>
+                        <div class="terminal-lines">
+                            <div class="term-line"><span class="prompt">$</span> ls -la</div>
+                            <div class="term-line output">drwxr-xr-x 5 root</div>
+                            <div class="term-line"><span class="prompt">$</span> <span class="cursor">|</span></div>
+                        </div>
+                    </div>
+                    <h4>Web Terminal</h4>
+                    <p>Brauzerda SSH</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="tech-stack">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Texnologiyalar</span>
+                <h2 class="section-title">Zamonaviy stek</h2>
+            </div>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <div class="tech-logo python">🐍</div>
+                    <span>Python</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo flask">⚗️</div>
+                    <span>Flask</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo docker">🐳</div>
+                    <span>Docker</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo nginx">⚡</div>
+                    <span>Nginx</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo tailwind">💨</div>
+                    <span>Tailwind</span>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-logo sqlite">🗄️</div>
+                    <span>SQLite</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Serveringizni boshqarishni boshlang</h2>
+                <p>MyPanel bilan serveringizni professional darajada boshqaring</p>
+                <div class="cta-buttons">
+                    <a href="#install" class="btn btn-white btn-lg">O'rnatishni boshlash</a>
+                    <a href="https://github.com/yourusername/mypanel" class="btn btn-outline-white btn-lg">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                        </svg>
+                        GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <span class="logo-icon">⬡</span>
+                        <span>MyPanel</span>
+                    </a>
+                    <p>Ubuntu Server uchun zamonaviy boshqaruv paneli</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Mahsulot</h4>
+                        <a href="#features">Imkoniyatlar</a>
+                        <a href="#install">O'rnatish</a>
+                        <a href="#screenshots">Skrinshotlar</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Hujjatlar</h4>
+                        <a href="#">Boshlash</a>
+                        <a href="#">API</a>
+                        <a href="#">FAQ</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Jamiyat</h4>
+                        <a href="#">GitHub</a>
+                        <a href="#">Telegram</a>
+                        <a href="#">Discord</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 MyPanel. Barcha huquqlar himoyalangan.</p>
+                <p>Made with ❤️ in Uzbekistan</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
